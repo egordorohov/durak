@@ -28,7 +28,7 @@ def _clean_row(row: dict) -> dict:
 def _clean_rows(rows: list[dict]) -> list[dict]:
     return [_clean_row(r) for r in rows]
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://tools:password@localhost:5432/durak")
+DATABASE_URL = os.environ["DATABASE_URL"]  # set in environment or .env
 
 _pool: asyncpg.Pool | None = None
 

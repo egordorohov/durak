@@ -17,8 +17,9 @@ def _coerce(value: object) -> object:
             pass
     return value
 
+import os
 SQLITE_PATH = Path(__file__).parent / "durak.db"
-PG_URL = "postgresql://tools:password@localhost:5432/durak"
+PG_URL = os.environ["DATABASE_URL"]  # export DATABASE_URL=postgresql://user:pass@host/durak
 
 TABLES = [
     "users", "owned_cosmetics", "stats", "achievements",

@@ -1,5 +1,6 @@
 #!/bin/bash
 cd /root/durak
+set -a; [ -f .env ] && source .env; set +a
 
 WORKERS=4
 BASE_PORT=8090
@@ -16,7 +17,7 @@ redis-cli -h 127.0.0.1 -p 6379 DEL durak:primary_worker 2>/dev/null
 # Start each worker on its own port
 for i in $(seq 0 $((WORKERS-1))); do
     PORT=$((BASE_PORT+i))
-    PYTHONPATH=/root/durak PORT=$PORT nohup venv/bin/python3 -m uvicorn server.main:app \
+    PYTHONPATH=/root/durak PORT=$PORT DATABASE_URL="${DATABASE_URL}" nohup venv/bin/python3 -m uvicorn server.main:app \
         --host 0.0.0.0 \
         --port $PORT \
         >> server_w${i}.log 2>&1 &
