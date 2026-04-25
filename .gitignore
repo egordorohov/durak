@@ -24,6 +24,7 @@ server/screens/
 
 # Build artifacts
 graphify-out/
+graphify-out/cache/
 
 # OS
 .DS_Store
