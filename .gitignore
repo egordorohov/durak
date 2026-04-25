@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Secrets
+server/screens/
+
+# Build artifacts
+graphify-out/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+<title>ДУРАК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<!-- ════ LOBBY ════ -->
+<section id="lobby" class="screen">
+  <!-- Tab: Profile -->
+  <div class="tab-panel" id="tab-profile">
+    <div class="theme-toggle-row">
+      <button class="theme-toggle-btn" id="theme-toggle" title="Сменить тему">☀️</button>
+    </div>
+    <div class="profile-header">
+      <div class="avatar-container" id="lobby-avatar-wrap">
+        <div class="avatar lg" id="lobby-avatar"></div>
+        <div class="avatar-emoji-wrap" id="lobby-emoji-wrap"></div>
+      </div>
+      <div class="profile-info">
+        <span class="profile-name" id="lobby-name">—</span>
+        <div class="pogon-wrap" id="lobby-pogon"></div>
+        <span class="rank-title" id="lobby-rank-title">Рядовой</span><span class="efr-badge hidden" id="efr-badge">!</span>
+        <span class="coins-badge" id="lobby-coins">⬡ —</span>
+      </div>
+    </div>
+    <div class="profile-stats" id="lobby-stats">
+      <div class="stat-item"><span class="stat-val" id="stat-games">0</span><span class="stat-lbl">игр</span></div>
+      <div class="stat-item"><span class="stat-val" id="stat-wins">0</span><span class="stat-lbl">побед</span></div>
+      <div class="stat-item"><span class="stat-val" id="stat-winrate">0%</span><span class="stat-lbl">w/r</span></div>
+      <div class="stat-item"><span class="stat-val" id="stat-streak">0</span><span class="stat-lbl">серия</span></div>
+    </div>
+    <div class="lobby-center-area">
+      <div class="quick-actions">
+        <button class="btn primary full" data-act="quick">Быстрая игра · <span id="quick-bet">100</span> ⬡</button>
+        <div class="vs-bot-row">
+          <button class="btn full vs-bot-main" data-act="vs_bot">Против бота · <span id="bot-bet">100</span> ⬡</button>
+          <div class="bot-count-opts" id="bot-count-opts">
+            <button class="bot-cnt active" data-bots="1">1</button>
+            <button class="bot-cnt" data-bots="2">2</button>
+            <button class="bot-cnt" data-bots="3">3</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lobby-btn-grid">
+      <button class="lobby-btn-card" data-act="show-friends" data-suit="♠">
+        <span class="lobby-btn-icon">👥</span>
+        <span class="lobby-btn-label">Друзья</span>
+      </button>
+      <button class="lobby-btn-card" data-act="show-achievements" data-suit="♣">
+        <span class="lobby-btn-icon">🏅</span>
+        <span class="lobby-btn-label">Достижения</span>
+      </button>
+      <button class="lobby-btn-card red" data-act="shop" data-suit="♦">
+        <span class="lobby-btn-icon">🃏</span>
+        <span class="lobby-btn-label">Магазин</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab: Open rooms -->
+  <div class="tab-panel hidden" id="tab-open">
+    <div class="rooms-header">
+      <span class="rooms-title">Открытые игры</span>
+      <button class="btn sm ghost" data-act="refresh-open">↻</button>
+    </div>
+    <div class="rooms-list" id="open-rooms-list">
+      <div class="rooms-empty">Нет открытых игр</div>
+    </div>
+  </div>
+
+  <!-- Tab: Private rooms -->
+  <div class="tab-panel hidden" id="tab-private">
+    <div class="rooms-header">
+      <span class="rooms-title">Приватные игры</span>
+      <button class="btn sm ghost" data-act="refresh-private">↻</button>
+    </div>
+    <div class="rooms-list" id="private-rooms-list">
+      <div class="rooms-empty">Нет приватных игр</div>
+    </div>
+    <div class="join-section">
+      <input id="join-code" type="text" class="join-input" placeholder="КОД КОМНАТЫ" autocomplete="off" spellcheck="false" maxlength="12">
+      <button class="btn primary" data-act="join-go">Войти</button>
+    </div>
+  </div>
+
+  <!-- Tab: Create game -->
+  <div class="tab-panel hidden" id="tab-create">
+    <div class="create-title">Создать игру</div>
+
+    <div class="setting-group">
+      <label class="setting-label">Ставка</label>
+      <div class="bet-options" id="bet-options">
+        <button class="bet-opt active" data-val="100">100</button>
+        <button class="bet-opt" data-val="500">500</button>
+        <button class="bet-opt" data-val="1000">1K</button>
+        <button class="bet-opt" data-val="5000">5K</button>
+        <button class="bet-opt" data-val="10000">10K</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">Игроки</label>
+      <div class="seg-control" id="players-opts">
+        <button class="seg-btn active" data-val="2">2</button>
+        <button class="seg-btn" data-val="3">3</button>
+        <button class="seg-btn" data-val="4">4</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">Колода</label>
+      <div class="seg-control" id="deck-opts">
+        <button class="seg-btn active" data-val="36">36 карт</button>
+        <button class="seg-btn" data-val="52">52 карты</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">Режим</label>
+      <div class="seg-control" id="mode-opts">
+        <button class="seg-btn active" data-val="perevodnoy">Переводной</button>
+        <button class="seg-btn" data-val="podkidnoy">Подкидной</button>
+      </div>
+    </div>
+
+    <div class="create-actions">
+      <button class="btn primary full" id="create-game-btn">Приватная — по ссылке →</button>
+      <button class="btn full" id="create-open-btn">Открытая — в списке</button>
+    </div>
+    <div class="create-hint">Приватная: получишь код/ссылку для друзей. Открытая: любой видит в списке.</div>
+  </div>
+
+  <!-- Tab: Leaderboard -->
+  <div class="tab-panel hidden" id="tab-leaderboard">
+    <div class="lb-header">
+      <span class="lb-title">Рейтинг</span>
+      <span class="lb-sub" id="lb-updated"></span>
+    </div>
+    <div class="lb-mode-tabs">
+      <button class="lb-mode-btn active" data-lbmode="players-games">Игроки · игры</button>
+      <button class="lb-mode-btn" data-lbmode="players-coins">Игроки · монеты</button>
+      <button class="lb-mode-btn" data-lbmode="clans-games">Кланы · игры</button>
+      <button class="lb-mode-btn" data-lbmode="clans-coins">Кланы · монеты</button>
+    </div>
+    <div id="leaderboard-list" class="lb-list"><div class="lb-loading">Загрузка…</div></div>
+  </div>
+
+  <div class="tab-panel hidden" id="tab-clan">
+    <div id="clan-no-clan">
+      <div class="clan-empty-title">У вас нет клана</div>
+      <div class="clan-actions">
+        <button class="btn primary" id="clan-create-btn">Создать клан</button>
+        <button class="btn" id="clan-join-btn">Вступить по username</button>
+      </div>
+      <div class="clan-form hidden" id="clan-create-form">
+        <input class="clan-input" id="clan-create-name" placeholder="Название клана" maxlength="32">
+        <input class="clan-input" id="clan-create-username" placeholder="Username (необязательно, без @)" maxlength="32">
+        <input class="clan-input" id="clan-create-desc" placeholder="Описание (необязательно)" maxlength="128">
+        <button class="btn primary" id="clan-create-submit">Создать</button>
+        <button class="btn" id="clan-create-cancel">Отмена</button>
+      </div>
+      <div class="clan-form hidden" id="clan-join-form">
+        <input class="clan-input" id="clan-join-username" placeholder="@username клана или канала/чата">
+        <button class="btn primary" id="clan-join-submit">Вступить</button>
+        <button class="btn" id="clan-join-cancel">Отмена</button>
+      </div>
+    </div>
+    <div class="hidden" id="clan-info">
+      <div class="clan-header">
+        <div class="clan-name" id="clan-info-name"></div>
+        <div class="clan-username" id="clan-info-username"></div>
+        <div class="clan-desc" id="clan-info-desc"></div>
+        <div class="clan-stats">
+          <span id="clan-info-members"></span> ·
+          <span id="clan-info-games"></span> игр ·
+          <span id="clan-info-coins"></span> ⬡
+        </div>
+      </div>
+      <div class="clan-members-title">Участники</div>
+      <div id="clan-members-list" class="clan-members-list"></div>
+      <button class="btn clan-leave-btn" id="clan-leave-btn">Покинуть клан</button>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav" id="lobby-nav">
+    <button class="nav-btn active" data-tab="profile">
+      <span class="nav-icon">♣</span><span class="nav-label">Профиль</span>
+    </button>
+    <button class="nav-btn" data-tab="open">
+      <span class="nav-icon">♥</span><span class="nav-label">Открытые</span>
+    </button>
+    <button class="nav-btn" data-tab="private">
+      <span class="nav-icon">♠</span><span class="nav-label">Приватные</span>
+    </button>
+    <button class="nav-btn" data-tab="create">
+      <span class="nav-icon">♦</span><span class="nav-label">Создать</span>
+    </button>
+    <button class="nav-btn" data-tab="leaderboard">
+      <span class="nav-icon">🏆</span><span class="nav-label">Топ</span>
+    </button>
+    <button class="nav-btn" data-tab="clan">
+      <span class="nav-icon">🛡</span><span class="nav-label">Клан</span>
+    </button>
+  </nav>
+</section>
+
+<!-- ════ FRIENDS ════ -->
+<section id="friends" class="screen hidden">
+  <div class="sub-header">
+    <button class="back-btn" data-act="back">←</button>
+    <span class="sub-title">ДРУЗЬЯ</span>
+    <button class="btn sm ghost" data-act="friend-add-show">+ Добавить</button>
+  </div>
+  <div id="friend-add-row" class="friend-add-row hidden">
+    <div class="friend-search-wrap">
+      <input id="friend-username" type="text" placeholder="@username" class="join-input" autocomplete="off">
+      <div id="friend-search-drop" class="friend-search-drop hidden"></div>
+    </div>
+    <button class="btn primary sm" data-act="friend-send">→</button>
+  </div>
+  <div class="friends-incoming hidden" id="friends-incoming"></div>
+  <div class="friends-list" id="friends-list">
+    <div class="rooms-empty">Нет друзей</div>
+  </div>
+</section>
+
+<!-- ════ FRIEND PROFILE ════ -->
+<section id="friend-profile" class="screen hidden">
+  <div class="sub-header">
+    <button class="back-btn" data-act="fp-back">←</button>
+    <span class="sub-title" id="fp-title">ПРОФИЛЬ</span>
+    <button class="btn sm ghost" id="fp-remove-btn" data-act="fp-remove">Удалить</button>
+  </div>
+  <div class="fp-body">
+    <div class="fp-avatar-wrap">
+      <div class="avatar xl" id="fp-avatar"></div>
+    </div>
+    <div class="fp-name" id="fp-name">—</div>
+    <div class="pogon-wrap" id="fp-pogon"></div>
+    <div class="fp-rank" id="fp-rank">Рядовой</div>
+    <div class="fp-stats" id="fp-stats"></div>
+    <div class="fp-rank-bar-wrap">
+      <div class="popup-rank-bar" id="fp-rank-bar"></div>
+    </div>
+    <div class="fp-rank-next" id="fp-rank-next"></div>
+    <div class="fp-link-wrap">
+      <div class="fp-link" id="fp-link"></div>
+      <button class="btn sm" id="fp-copy-link">Копировать ссылку</button>
+    </div>
+    <div class="fp-online" id="fp-online"></div>
+  </div>
+</section>
+
+<!-- ════ ADMIN PANEL ════ -->
+<section id="admin-panel" class="screen hidden">
+  <div class="sub-header">
+    <button class="back-btn" data-act="back">←</button>
+    <span class="sub-title">ADMIN</span>
+  </div>
+  <div class="admin-body">
+    <div class="admin-group">
+      <div class="admin-label">Монеты</div>
+      <div class="admin-row">
+        <input id="admin-coins" type="number" class="admin-input" placeholder="5000">
+        <button class="btn sm primary" data-admin-set="coins">SET</button>
+      </div>
+    </div>
+    <div class="admin-group">
+      <div class="admin-label">Игры (определяет ранг)</div>
+      <div class="admin-row">
+        <input id="admin-games" type="number" class="admin-input" placeholder="0">
+        <button class="btn sm primary" data-admin-set="games">SET</button>
+      </div>
+    </div>
+    <div class="admin-group">
+      <div class="admin-label">Победы</div>
+      <div class="admin-row">
+        <input id="admin-wins" type="number" class="admin-input" placeholder="0">
+        <button class="btn sm primary" data-admin-set="wins">SET</button>
+      </div>
+    </div>
+    <div class="admin-preview">
+      <div class="admin-preview-title">Превью профиля</div>
+      <div class="admin-preview-card">
+        <div class="pogon-wrap" id="admin-pogon-preview"></div>
+        <div class="admin-preview-rank" id="admin-rank-preview">Рядовой</div>
+        <div class="admin-preview-stats" id="admin-stats-preview"></div>
+      </div>
+    </div>
+    <div class="admin-group">
+      <div class="admin-label">Паки на модерации</div>
+      <button class="btn sm ghost" id="admin-packs-btn" onclick="send({type:'packs_pending_get'})">Загрузить ↓</button>
+      <div id="admin-packs-list" class="admin-packs-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ ACHIEVEMENTS ════ -->
+<section id="achievements" class="screen hidden">
+  <div class="sub-header">
+    <button class="back-btn" data-act="back">←</button>
+    <span class="sub-title">ДОСТИЖЕНИЯ</span>
+    <span class="ach-progress" id="ach-progress">0/15</span>
+  </div>
+  <div class="achievements-list" id="achievements-list"></div>
+</section>
+
+<!-- ════ WAITING ════ -->
+<section id="waiting" class="screen hidden">
+  <header class="brand">
+    <h1>ЖДЁМ</h1>
+    <p class="tag" id="waiting-sub">ищем соперника…</p>
+  </header>
+
+  <div id="code-box" class="code-box hidden">
+    <p class="hint">код комнаты</p>
+    <p class="code" id="room-code">——</p>
+    <div class="code-actions">
+      <button class="btn sm" data-act="share">Скопировать ссылку</button>
+      <button class="btn sm ghost" data-act="invite-friends">👥 Пригласить друга</button>
+    </div>
+  </div>
+
+  <div id="invite-list-wrap" class="invite-list-wrap hidden"></div>
+
+  <button class="btn ghost" data-act="cancel">Отмена</button>
+</section>
+
+<!-- ════ READY CHECK ════ -->
+<section id="ready-check" class="screen hidden">
+  <div class="rc-inner">
+    <div class="rc-player">
+      <div class="avatar-container">
+        <div class="avatar md" id="rc-opp-avatar"></div>
+      </div>
+      <span class="rc-name" id="rc-opp-name">—</span>
+      <span class="rc-badge" id="rc-opp-badge"></span>
+    </div>
+
+    <div class="rc-center">
+      <div class="rc-timer-ring">
+        <svg viewBox="0 0 56 56" class="rc-svg">
+          <circle cx="28" cy="28" r="24" class="rc-ring-bg"/>
+          <circle cx="28" cy="28" r="24" class="rc-ring-prog" id="rc-ring"/>
+        </svg>
+        <span class="rc-timer-num" id="rc-timer">10</span>
+      </div>
+    </div>
+
+    <div class="rc-player me">
+      <div class="avatar-container">
+        <div class="avatar md" id="rc-me-avatar"></div>
+      </div>
+      <span class="rc-name" id="rc-me-name">вы</span>
+      <span class="rc-badge" id="rc-me-badge"></span>
+    </div>
+
+    <button class="btn primary rc-btn" id="rc-ready-btn">Готов!</button>
+    <button class="btn ghost rc-cancel" data-act="rc-cancel">Отмена</button>
+  </div>
+</section>
+
+<!-- ════ GAME ════ -->
+<section id="game" class="screen hidden">
+
+  <!-- Opponents (1–3, dynamically rendered) -->
+  <div class="opponents-zone" id="opponents-zone"></div>
+
+  <!-- Table + Deck -->
+  <div class="middle">
+    <div class="deck-area">
+      <div class="trump-card-area hidden" id="trump-display"></div>
+      <div class="trump-suit-only hidden" id="trump-suit-only"></div>
+      <div class="deck-pile" id="deck-pile">
+        <span class="pile-count" id="pile-count">0</span>
+      </div>
+    </div>
+
+    <div class="table" id="table"></div>
+
+    <div class="discard-area" id="discard-area">
+      <div class="discard-pile" id="discard-pile">
+        <span class="pile-count" id="discard-count"></span>
+      </div>
+      <span class="discard-label">бито</span>
+    </div>
+
+  </div>
+
+  <!-- Me -->
+  <div class="me-strip">
+    <div class="me-info">
+      <div class="avatar-container">
+        <div class="avatar sm" id="me-avatar"></div>
+        <div class="avatar-emoji-wrap" id="my-emoji-wrap"></div>
+      </div>
+      <span class="turn-dot" id="me-turn-dot"></span>
+      <span id="me-name">вы</span>
+      <span class="opp-rank-mini" id="me-rank-mini"></span>
+      <span class="game-coins" id="game-coins"></span>
+      <div class="timer-pill hidden" id="timer-pill">30</div>
+    </div>
+    <div class="defend-hint" id="defend-hint"></div>
+    <div class="emoji-bar" id="emoji-bar"></div>
+    <div class="hand" id="hand"></div>
+    <div class="action-bar" id="action-bar"></div>
+  </div>
+
+  <!-- Action flash (opponent action labels) -->
+  <div class="action-flash hidden" id="action-flash"></div>
+
+  <!-- Disconnect overlay -->
+  <div class="disconnect-overlay hidden" id="disconnect-overlay">
+    <div class="disconnect-card">
+      <div class="disconnect-avatar" id="dc-avatar"></div>
+      <div class="disconnect-name" id="dc-name"></div>
+      <div class="disconnect-msg">потерял соединение</div>
+      <div class="disconnect-timer-ring">
+        <svg viewBox="0 0 56 56" class="dc-svg">
+          <circle cx="28" cy="28" r="24" class="dc-ring-bg"/>
+          <circle cx="28" cy="28" r="24" class="dc-ring-prog" id="dc-ring"/>
+        </svg>
+        <span class="dc-timer-num" id="dc-timer">30</span>
+      </div>
+      <div class="disconnect-hint">ждём возвращения…</div>
+    </div>
+  </div>
+
+  <!-- End overlay -->
+  <div class="overlay hidden" id="end-overlay">
+    <canvas id="confetti-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+    <div class="end-card">
+      <p class="end-emoji" id="end-emoji"></p>
+      <p class="end-title" id="end-title">—</p>
+      <p class="end-sub"   id="end-sub"></p>
+      <div class="end-results" id="end-results"></div>
+      <p class="end-coins" id="end-coins"></p>
+      <button class="btn primary full" data-act="rematch" id="rematch-btn">Реванш</button>
+      <div class="end-restart-btns">
+        <button class="btn sm" data-act="restart-quick">Быстрая игра</button>
+        <button class="btn sm" data-act="restart-bot">Против бота</button>
+      </div>
+      <button class="btn ghost" data-act="again">В лобби</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════ SHOP ════ -->
+<section id="shop" class="screen hidden">
+  <div class="shop-header">
+    <button class="btn ghost shop-back" data-act="shop-back">← Назад</button>
+    <span class="shop-title">МАГАЗИН</span>
+    <span class="shop-coins" id="shop-coins">⬡ —</span>
+  </div>
+
+  <div class="shop-tabs">
+    <button class="shop-tab active" data-tab="cards">Рубашки</button>
+    <button class="shop-tab" data-tab="tables">Стол</button>
+    <button class="shop-tab" data-tab="emojis">Стикеры</button>
+    <button class="shop-tab" data-tab="market">Маркет</button>
+  </div>
+
+  <div class="shop-body" id="shop-body"></div>
+</section>
+
+<!-- ════ PACK CREATOR ════ -->
+<section id="pack-creator" class="screen hidden">
+  <div class="sub-header">
+    <button class="back-btn" data-act="creator-back">←</button>
+    <span class="sub-title">СОЗДАТЬ ПАК</span>
+  </div>
+  <div class="creator-body">
+    <div class="creator-section">
+      <label class="creator-label">Название пака</label>
+      <input id="creator-name" class="creator-input" type="text" maxlength="32" placeholder="Мой крутой пак">
+    </div>
+
+    <div class="creator-section">
+      <label class="creator-label">Изображения <span class="creator-hint">3–6 картинок (PNG/JPG/WebP, до 1МБ)</span></label>
+      <div class="creator-slots" id="creator-slots">
+        <!-- slots rendered by JS -->
+      </div>
+    </div>
+
+    <div class="creator-section">
+      <label class="creator-label">Предпросмотр</label>
+      <div class="emoji-bar creator-preview" id="creator-preview"></div>
+    </div>
+
+    <div class="creator-section">
+      <label class="creator-label">Цена (⬡)</label>
+      <div class="seg-control" id="creator-price-opts">
+        <button class="seg-btn active" data-val="500">500</button>
+        <button class="seg-btn" data-val="1000">1 000</button>
+        <button class="seg-btn" data-val="2500">2 500</button>
+        <button class="seg-btn" data-val="5000">5 000</button>
+      </div>
+    </div>
+
+    <div class="creator-section">
+      <label class="creator-label">Тираж</label>
+      <div class="seg-control" id="creator-supply-opts">
+        <button class="seg-btn active" data-val="0">∞ Безлимит</button>
+        <button class="seg-btn" data-val="500">500 шт.</button>
+        <button class="seg-btn" data-val="100">100 лимитка</button>
+      </div>
+    </div>
+
+    <div class="creator-note">
+      70% с каждой продажи поступает тебе в ⬡. После отправки пак проходит модерацию.
+    </div>
+
+    <button class="btn primary full" id="creator-submit-btn">Отправить на модерацию →</button>
+    <div class="creator-status hidden" id="creator-status"></div>
+  </div>
+</section>
+
+<!-- ════ PROFILE POPUP ════ -->
+<div class="profile-popup hidden" id="profile-popup">
+  <div class="profile-popup-inner">
+    <button class="popup-close" id="profile-popup-close">✕</button>
+    <div class="popup-avatar-wrap">
+      <div class="avatar xl" id="popup-avatar"></div>
+    </div>
+    <div class="popup-name" id="popup-name">—</div>
+    <div class="popup-pogon-wrap" id="popup-pogon"></div>
+    <div class="popup-rank-title" id="popup-rank-title">Рядовой</div><span class="efr-badge hidden" id="popup-efr-badge">!</span>
+    <div class="popup-stats">
+      <div class="popup-stat"><span class="popup-stat-val" id="popup-games">0</span><span class="popup-stat-lbl">игр</span></div>
+      <div class="popup-stat"><span class="popup-stat-val" id="popup-wins">0</span><span class="popup-stat-lbl">побед</span></div>
+      <div class="popup-stat"><span class="popup-stat-val" id="popup-winrate">—</span><span class="popup-stat-lbl">w/r</span></div>
+      <div class="popup-stat"><span class="popup-stat-val" id="popup-streak">0</span><span class="popup-stat-lbl">серия</span></div>
+    </div>
+    <div class="popup-rank-bar-wrap">
+      <div class="popup-rank-bar" id="popup-rank-bar"></div>
+    </div>
+    <div class="popup-rank-next" id="popup-rank-next"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="/static/app.js?v=40"></script>
+</body>
+</html>
